@@ -24,9 +24,9 @@ Example
     # wsgi.py
     application = ... # your regular wsgi app declaration
     
-    from wsgi_profiler import ProfilerMiddleware
+    from conditional_wsgi_profiler import ConditionalProfilerMiddleware
     import random
-    application = ProfilerMiddleware(
+    application = ConditionalProfilerMiddleware(
        application,
        profile_dir='profiled',
        prefilter=lambda env: random.random() <= 0.01,  # profile 1% of traffic randomly
