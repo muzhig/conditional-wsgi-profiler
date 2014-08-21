@@ -8,7 +8,7 @@ from cProfile import Profile
 from pstats import Stats
 
 
-class ProfilerMiddleware(object):
+class ConditionalProfilerMiddleware(object):
     def __init__(self, app, stream=None, sort_by=('time', 'calls'), profile_dir=None, prefilter=None, postfilter=None):
         self._app = app
         self._stream = stream or sys.stdout
