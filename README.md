@@ -1,2 +1,38 @@
-conditional-wsgi-profiler
+Conditional WSGI Profiler
 =========================
+
+WSGI profiler for high load production machines. It could help in determining bottleneck which appears only on production environment. You can apply it as regular WSGI middleware.
+
+
+Conditioning is based on two filter functions:
+
+1. **prefilter**, which is applied to request environment to decide **whether profile or not**. If returns False then profiling isn't done and this request would be processed as usual without any overhead. Purpose of this filter is having more control on overhead added by profiling by applying it to a controlled portion of traffic.
+```python
+    def prefilter(env):
+        return True
+```
+2. **postfilter**, which is called after profiling to decide **whether dump profiling stats or not**. This filter grants you a control over what and how frequently write to the disk. This allows you to not overwhelm your disks or IO.
+```python
+    def postfilter(env, body, elapsed):
+        return True
+```
+
+Example
+-------
+
+```python
+    # wsgi.py
+    application = ... # your regular wsgi app declaration
+    
+    from wsgi_profiler import ProfilerMiddleware
+    import random
+    application = ProfilerMiddleware(
+       application,
+       profile_dir='profiled',
+       prefilter=lambda env: random.random() <= 0.01,  # profile 1% of traffic randomly
+       postfilter=lambda env, body, elapsed: elapsed > 0.5,
+    )
+```
+
+
+
