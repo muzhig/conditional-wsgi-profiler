@@ -8,14 +8,19 @@ from cProfile import Profile
 from pstats import Stats
 
 
+
 class ConditionalProfilerMiddleware(object):
-    def __init__(self, app, stream=None, sort_by=('time', 'calls'), profile_dir=None, prefilter=None, postfilter=None):
+    def __init__(self, app, stream=None, sort_by=('time', 'calls'), profile_dir=None, prefilter=None, postfilter=None, line_profiler_args=[], line_profiler_kwargs={}):
         self._app = app
         self._stream = stream or sys.stdout
         self._sort_by = sort_by
         self._profile_dir = profile_dir
         self._prefilter = prefilter
         self._postfilter = postfilter
+        self.line_profiler = None
+        if line_profiler_args or line_profiler_kwargs:
+            from line_profiler import LineProfiler
+            self.line_profiler = LineProfiler(*line_profiler_args, **line_profiler_kwargs)
         if self._profile_dir and not os.path.isdir(self._profile_dir):
             os.makedirs(self._profile_dir)
 
@@ -35,7 +40,7 @@ class ConditionalProfilerMiddleware(object):
             if hasattr(appiter, 'close'):
                 appiter.close()
 
-        p = Profile()
+        p = self.line_profiler or Profile()
         start = time.time()
         p.runcall(runapp)
         body = b''.join(response_body)
@@ -52,7 +57,7 @@ class ConditionalProfilerMiddleware(object):
 
                 self._stream.write('-' * 80)
                 self._stream.write('\nPATH: %r\n' % environ.get('PATH_INFO'))
-                stats.print_stats(*self._restrictions)
+                stats.print_stats()
                 self._stream.write('-' * 80 + '\n\n')
 
         return [body]
