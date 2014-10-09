@@ -34,5 +34,16 @@ Example
     )
 ```
 
+Line_profiler is supported
+-------
+
+1. Install line_profiler (https://github.com/rkern/line_profiler)
+```pip install line_profiler```
+
+2. pass _line_profiler_args_ and _line_profiler_kwargs_ keyword arguments to middleware fabric:
+```application = ConditionalProfilerMiddleware(application, line_profiler_args=[func1, func2, func3]```
+
+3. Dumped stats files are actually pickled LineStats objects. You can print them with a command:
+```python -m line_profiler <dump_file_name>```
 
 
